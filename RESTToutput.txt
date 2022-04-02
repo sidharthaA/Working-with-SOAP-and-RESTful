@@ -1,0 +1,78 @@
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
+import logo from './logo.svg';
+import './App.css';
+
+const App = () => {
+  const [name, setname] = useState([])
+  const [age, setAge] = useState([])
+  const [gender, setGender] = useState([])
+  const [nation, setNation] = useState([])
+  const data = '<?xml version="1.0" encoding="utf-8"?>\n<soap12:Envelope xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">\n  <soap12:Body>\n    <ListOfCountryNamesByName xmlns="http://www.oorsprong.org/websamples.countryinfo">\n    </ListOfCountryNamesByName>\n  </soap12:Body>\n</soap12:Envelope>';
+ 
+  const fetchData = () => {
+    const ageAPI = 'https://api.agify.io?name=' + name;
+    const genderAPI = 'https://api.genderize.io?name=' + name;
+    const nationAPI = 'https://api.nationalize.io?name=' + name;
+
+    const getPersonAge = axios.get(ageAPI)
+    const getPersonGender = axios.get(genderAPI)
+    const getPersonNation = axios.get(nationAPI)
+    axios.all([getPersonAge, getPersonGender, getPersonNation]).then(
+      axios.spread((...allData) => {
+
+        const allDataAge = allData[0].data.age
+        const allDataGender = allData[1].data.gender
+        const allDataNation = allData[2].data.country
+
+        console.log(allDataAge)
+        setAge(allDataAge)
+        console.log(allDataGender)
+        setGender(allDataGender)
+        console.log(allDataNation)
+        setNation(allDataNation)
+
+        var html = "<table border='1|1'>";
+for (var i = 0; i < allDataNation.length; i++) {
+    html+="<tr>";
+    html+="<td>"+allDataNation[i].country_id+"</td>";
+    
+    html+="</tr>";
+
+}
+html+="</table>";
+document.getElementById("box").innerHTML = html;
+
+
+      })
+    )
+  } 
+
+  useEffect(() => {
+    // fetchData()
+  }, [])
+const onType = (e) => {
+  setname(e.target.value)
+  fetchData()
+
+}
+  return (
+    <div className="App">
+      <input
+      type = "text"
+      placeholder = "enter search"
+      onChange = {onType}
+      />
+      <div>
+      userAge is: {age}
+      </div>
+      <div>
+      userGender is: {gender}
+      </div>
+      <div id = "box">
+      </div>
+    </div>
+  );
+}
+
+export default App;
